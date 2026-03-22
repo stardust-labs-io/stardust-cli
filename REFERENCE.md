@@ -13,8 +13,6 @@ export STARDUST_API_KEY=sj_your_key_here
 ## Commands
 
 - [Artists](#artists)
-- [Users / Auth / Apple](#usersauthapple)
-- [Users / Auth](#usersauth)
 - [Content](#content)
 - [Events](#events)
 - [Locations](#locations)
@@ -149,84 +147,11 @@ Get all recordings for an artist (used by 'Show More' button).
 
 ---
 
-## Users / Auth / Apple
-
-### `auth-apple`
-
-**POST** `/auth/apple`
-
-**Body fields:**
-
-| Field | Type | Required | Default |
-|---|---|---|---|
-| `authorization_code` | string | yes |  |
-| `install_id` | string | yes |  |
-| `given_name` | string | no |  |
-| `family_name` | string | no |  |
-
----
-
-### `auth-apple-refresh`
-
-**POST** `/auth/apple/refresh`
-
-**Body fields:**
-
-| Field | Type | Required | Default |
-|---|---|---|---|
-| `refresh_token` | string | yes |  |
-| `install_id` | string | yes |  |
-
----
-
-### `auth-refresh`
-
-**POST** `/auth/refresh`
-
-**Body fields:**
-
-| Field | Type | Required | Default |
-|---|---|---|---|
-| `refresh_token` | string | yes |  |
-| `install_id` | string | yes |  |
-
----
-
-## Users / Auth
-
-### `auth-sign-out`
-
-**POST** `/auth/sign-out`
-
-Signing out will basically just delete (set the deleted_at of) the user's refresh token, making it so when their
-access token runs out, the device (denoted by install_id) they signed out on will not be able to refresh.
-The server-side signing out is almost always just going to be a precautionary measure since it should be on the
-client to actually delete the access token and refresh token from their memory, but technically if that *didn't*
-work, and the device held onto their access and refresh tokens, at the point that their access token expired
-(which would maximally be a time of AuthConfig.ACCESS_TOKEN_EXPIRY), they would no longer be able
-properly authenticate, requiring them to Sign In again, to get new access and refresh tokens.
-
-**Body fields:**
-
-| Field | Type | Required | Default |
-|---|---|---|---|
-| `install_id` | string | yes |  |
-
----
-
 ## Content
 
 ### `get-content-url`
 
 **GET** `/content/{content_type}/{content_id}`
-
-Returns a pre-signed S3 URL for private content.
-
-The client should fetch the actual content from the returned URL.
-This implements the two-phase fetch pattern for secure private content access.
-
-- Phase 1: Client calls this endpoint with auth token
-- Phase 2: Client downloads content from the pre-signed S3 URL (no auth needed)
 
 | Parameter | In | Type | Required | Default |
 |---|---|---|---|---|
@@ -268,21 +193,6 @@ This implements the two-phase fetch pattern for secure private content access.
 ```bash
 stardust create-event '{"name": "Jazz Night", "privacy": "public", "venue_id": 5}'
 ```
-
----
-
-### `check-event-statuses`
-
-**POST** `/events/sync`
-
-Unified sync endpoint for all events (created + participating + liked).
-Returns sync instructions for all events the user should have access to.
-
-**Body fields:**
-
-| Field | Type | Required | Default |
-|---|---|---|---|
-| `metadatas` | MetadataJSON[] | yes |  |
 
 ---
 
@@ -646,21 +556,6 @@ Returns a stream of text chunks as they are generated, including:
 
 ---
 
-### `check-note-statuses`
-
-**POST** `/notes/sync`
-
-Unified sync endpoint for all notes (originals + liked).
-Returns sync instructions for all notes the user should have access to.
-
-**Body fields:**
-
-| Field | Type | Required | Default |
-|---|---|---|---|
-| `metadatas` | MetadataJSON[] | yes |  |
-
----
-
 ### `get-note-by-uuid`
 
 **GET** `/notes/uuid/{uuid}`
@@ -807,21 +702,6 @@ Create a new comment on a post.
 
 ---
 
-### `check-recording-statuses`
-
-**POST** `/recordings/sync`
-
-Unified sync endpoint for all recordings (originals + recorded with + liked).
-Returns sync instructions for all recordings the user should have access to.
-
-**Body fields:**
-
-| Field | Type | Required | Default |
-|---|---|---|---|
-| `metadatas` | MetadataJSON[] | yes |  |
-
----
-
 ### `get-recording-by-uuid`
 
 **GET** `/recordings/uuid/{uuid}`
@@ -921,12 +801,6 @@ stardust get-search "term=jazz&types=artist,event,venue&page=1&per_page=20"
 
 ---
 
-### `get-songs-by-spotify-id`
-
-**GET** `/songs/spotify`
-
----
-
 ## Users
 
 ### `get-users`
@@ -936,16 +810,6 @@ stardust get-search "term=jazz&types=artist,event,venue&page=1&per_page=20"
 | Parameter | In | Type | Required | Default |
 |---|---|---|---|---|
 | `ids` | query | integer[] | yes |  |
-
----
-
-### `create-test-user`
-
-**POST** `/users`
-
-| Parameter | In | Type | Required | Default |
-|---|---|---|---|---|
-| `user_id` | query | integer | yes |  |
 
 ---
 
@@ -1059,13 +923,6 @@ Get all recordings for a user (used by 'Show More' button).
 ### `get-profile-image-upload-url`
 
 **POST** `/users/{user_to_change_id}/image/upload-url`
-
-Get a pre-signed URL for uploading a profile image.
-
-The client should:
-1. Call this endpoint to get a pre-signed S3 URL
-2. PUT the image data directly to the returned URL
-3. The S3 bucket trigger will automatically update the user's image
 
 | Parameter | In | Type | Required | Default |
 |---|---|---|---|---|

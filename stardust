@@ -127,26 +127,6 @@ get_artist_recordings() {
     api_request GET "$path" | pretty
 }
 
-auth_apple() {
-    local body="${1:-{}}"
-    api_request POST "/auth/apple" -d "$body" | pretty
-}
-
-auth_apple_refresh() {
-    local body="${1:-{}}"
-    api_request POST "/auth/apple/refresh" -d "$body" | pretty
-}
-
-auth_refresh() {
-    local body="${1:-{}}"
-    api_request POST "/auth/refresh" -d "$body" | pretty
-}
-
-auth_sign_out() {
-    local body="${1:-{}}"
-    api_request POST "/auth/sign-out" -d "$body" | pretty
-}
-
 get_content_url() {
     local content_type="${1:?"content_type is required"}"
     local content_id="${2:?"content_id is required"}"
@@ -170,11 +150,6 @@ get_events_by_id() {
 create_event() {
     local body="${1:-{}}"
     api_request POST "/events" -d "$body" | pretty
-}
-
-check_event_statuses() {
-    local body="${1:-{}}"
-    api_request POST "/events/sync" -d "$body" | pretty
 }
 
 get_event_by_uuid() {
@@ -358,11 +333,6 @@ get_suggested_tips() {
     api_request POST "/notes/suggested-tips" -d "$body" | pretty
 }
 
-check_note_statuses() {
-    local body="${1:-{}}"
-    api_request POST "/notes/sync" -d "$body" | pretty
-}
-
 get_note_by_uuid() {
     local uuid="${1:?"uuid is required"}"
     local query="${2:-}"
@@ -459,11 +429,6 @@ get_recording_collections_by_id() {
     api_request GET "$path" | pretty
 }
 
-check_recording_statuses() {
-    local body="${1:-{}}"
-    api_request POST "/recordings/sync" -d "$body" | pretty
-}
-
 get_recording_by_uuid() {
     local uuid="${1:?"uuid is required"}"
     local query="${2:-}"
@@ -512,11 +477,6 @@ get_songs_by_id() {
     api_request GET "$path" | pretty
 }
 
-get_songs_by_spotify_id() {
-    local body="${1:-{}}"
-    api_request GET "/songs/spotify" -d "$body" | pretty
-}
-
 get_users() {
     local query="${1:-}"
     local path="/users"
@@ -524,10 +484,6 @@ get_users() {
         path="${path}?${query}"
     fi
     api_request GET "$path" | pretty
-}
-
-create_test_user() {
-    api_request POST "/users" | pretty
 }
 
 list_api_keys() {
@@ -704,14 +660,9 @@ Commands:
   reject-membership <artist_id> <member_user_id>   Reject Membership
   get-artist-notes <artist_id>                     Get Artist Notes
   get-artist-recordings <artist_id>                Get Artist Recordings
-  auth-apple [json-body]                           Auth Apple
-  auth-apple-refresh [json-body]                   Auth Refresh
-  auth-refresh [json-body]                         Auth Refresh
-  auth-sign-out [json-body]                        Auth Sign Out
   get-content-url <content_type> <content_id>      Get Content Url
   get-events-by-id                                 Get Events By Id
   create-event [json-body]                         Create Event
-  check-event-statuses [json-body]                 Check Event Statuses
   get-event-by-uuid <uuid>                         Get Event By Uuid
   post-event-users <code>                          Post Event Users
   get-event <event_id>                             Get Event
@@ -736,7 +687,6 @@ Commands:
   get-notes-by-note-tag <note_tag_id>              Get Notes By Note Tag
   get-note-collections-by-id                       Get Note Collections By Id
   get-suggested-tips [json-body]                   Get Suggested Tips
-  check-note-statuses [json-body]                  Check Note Statuses
   get-note-by-uuid <uuid>                          Get Note By Uuid
   get-tags-for-note <note_id>                      Get Tags For Note
   set-tags-for-note <note_id> [json-body]          Set Tags For Note
@@ -751,16 +701,13 @@ Commands:
   get-recordings-by-id                             Get Recordings By Id
   upload-recording [json-body]                     Upload Recording
   get-recording-collections-by-id                  Get Recording Collections By Id
-  check-recording-statuses [json-body]             Check Recording Statuses
   get-recording-by-uuid <uuid>                     Get Recording By Uuid
   get-recording <recording_id>                     Get Recording
   like-recording <recording_id>                    Like Recording
   unlike-recording <recording_id>                  Unlike Recording
   get-search                                       Get Search
   get-songs-by-id                                  Get Songs By Id
-  get-songs-by-spotify-id [json-body]              Get Songs By Spotify Id
   get-users                                        Get Users
-  create-test-user                                 Create Test User
   list-api-keys                                    List Api Keys
   create-api-key [json-body]                       Create Api Key
   delete-api-key <api_key_id>                      Delete Api Key
@@ -802,14 +749,9 @@ case "$command" in
     reject-membership) reject_membership "$@" ;;
     get-artist-notes) get_artist_notes "$@" ;;
     get-artist-recordings) get_artist_recordings "$@" ;;
-    auth-apple) auth_apple "$@" ;;
-    auth-apple-refresh) auth_apple_refresh "$@" ;;
-    auth-refresh) auth_refresh "$@" ;;
-    auth-sign-out) auth_sign_out "$@" ;;
     get-content-url) get_content_url "$@" ;;
     get-events-by-id) get_events_by_id "$@" ;;
     create-event) create_event "$@" ;;
-    check-event-statuses) check_event_statuses "$@" ;;
     get-event-by-uuid) get_event_by_uuid "$@" ;;
     post-event-users) post_event_users "$@" ;;
     get-event) get_event "$@" ;;
@@ -834,7 +776,6 @@ case "$command" in
     get-notes-by-note-tag) get_notes_by_note_tag "$@" ;;
     get-note-collections-by-id) get_note_collections_by_id "$@" ;;
     get-suggested-tips) get_suggested_tips "$@" ;;
-    check-note-statuses) check_note_statuses "$@" ;;
     get-note-by-uuid) get_note_by_uuid "$@" ;;
     get-tags-for-note) get_tags_for_note "$@" ;;
     set-tags-for-note) set_tags_for_note "$@" ;;
@@ -849,16 +790,13 @@ case "$command" in
     get-recordings-by-id) get_recordings_by_id "$@" ;;
     upload-recording) upload_recording "$@" ;;
     get-recording-collections-by-id) get_recording_collections_by_id "$@" ;;
-    check-recording-statuses) check_recording_statuses "$@" ;;
     get-recording-by-uuid) get_recording_by_uuid "$@" ;;
     get-recording) get_recording "$@" ;;
     like-recording) like_recording "$@" ;;
     unlike-recording) unlike_recording "$@" ;;
     get-search) get_search "$@" ;;
     get-songs-by-id) get_songs_by_id "$@" ;;
-    get-songs-by-spotify-id) get_songs_by_spotify_id "$@" ;;
     get-users) get_users "$@" ;;
-    create-test-user) create_test_user "$@" ;;
     list-api-keys) list_api_keys "$@" ;;
     create-api-key) create_api_key "$@" ;;
     delete-api-key) delete_api_key "$@" ;;
