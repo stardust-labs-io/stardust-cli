@@ -36,16 +36,19 @@ Commands map directly to API endpoints. Pass query parameters as the first argum
 
 ```bash
 # Search
-stardust get-search-search-get "term=jazz&types=artist"
+stardust get-search "term=jazz&types=artist"
 
 # Get an event
-stardust get-event-events-event-id-get "" 42
+stardust get-event 42
 
 # Create an event
-stardust create-event-events-post "" '{"name": "Jazz Night", "venue_id": 1}'
+stardust create-event '{"name": "Jazz Night", "venue_id": 1}'
 
 # List your API keys
-stardust list-api-keys-users-me-api-keys-get
+stardust list-api-keys
+
+# Like a recording
+stardust like-recording 7
 ```
 
 ## Requirements

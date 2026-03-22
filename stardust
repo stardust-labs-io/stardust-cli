@@ -37,9 +37,9 @@ api_request() {
 
     local response
     local http_code
+    local body
     response=$(curl "${args[@]}" -w "\n%{http_code}" "$url")
     http_code=$(echo "$response" | tail -1)
-    local body
     body=$(echo "$response" | sed '$d')
 
     if [[ "$http_code" -ge 400 ]]; then
@@ -60,30 +60,12 @@ pretty() {
 
 # --- Commands ---
 
-get_status_get() {
-    local query="${1:-}"
-    local path="/"
-    if [[ -n "$query" ]]; then
-        path="${path}?${query}"
-    fi
-    api_request GET "$path" | pretty
-}
-
-get_status_status_get() {
-    local query="${1:-}"
-    local path="/_status"
-    if [[ -n "$query" ]]; then
-        path="${path}?${query}"
-    fi
-    api_request GET "$path" | pretty
-}
-
-create_artist_artists_post() {
+create_artist() {
     local body="${1:-{}}"
     api_request POST "/artists" -d "$body" | pretty
 }
 
-get_artist_artists_artist_id_get() {
+get_artist() {
     local artist_id="${1:?"artist_id is required"}"
     local query="${2:-}"
     local path="/artists/$artist_id"
@@ -93,7 +75,7 @@ get_artist_artists_artist_id_get() {
     api_request GET "$path" | pretty
 }
 
-get_artist_events_artists_artist_id_events_get() {
+get_artist_events() {
     local artist_id="${1:?"artist_id is required"}"
     local query="${2:-}"
     local path="/artists/$artist_id/events"
@@ -103,29 +85,29 @@ get_artist_events_artists_artist_id_events_get() {
     api_request GET "$path" | pretty
 }
 
-request_membership_artists_artist_id_members_post() {
+request_membership() {
     local artist_id="${1:?"artist_id is required"}"
     api_request POST "/artists/$artist_id/members" | pretty
 }
 
-remove_own_membership_artists_artist_id_members_me_delete() {
+remove_own_membership() {
     local artist_id="${1:?"artist_id is required"}"
     api_request DELETE "/artists/$artist_id/members/me" | pretty
 }
 
-approve_membership_artists_artist_id_members_member_user_id_approve_post() {
+approve_membership() {
     local artist_id="${1:?"artist_id is required"}"
     local member_user_id="${2:?"member_user_id is required"}"
     api_request POST "/artists/$artist_id/members/$member_user_id/approve" | pretty
 }
 
-reject_membership_artists_artist_id_members_member_user_id_reject_post() {
+reject_membership() {
     local artist_id="${1:?"artist_id is required"}"
     local member_user_id="${2:?"member_user_id is required"}"
     api_request POST "/artists/$artist_id/members/$member_user_id/reject" | pretty
 }
 
-get_artist_notes_artists_artist_id_notes_get() {
+get_artist_notes() {
     local artist_id="${1:?"artist_id is required"}"
     local query="${2:-}"
     local path="/artists/$artist_id/notes"
@@ -135,7 +117,7 @@ get_artist_notes_artists_artist_id_notes_get() {
     api_request GET "$path" | pretty
 }
 
-get_artist_recordings_artists_artist_id_recordings_get() {
+get_artist_recordings() {
     local artist_id="${1:?"artist_id is required"}"
     local query="${2:-}"
     local path="/artists/$artist_id/recordings"
@@ -145,27 +127,27 @@ get_artist_recordings_artists_artist_id_recordings_get() {
     api_request GET "$path" | pretty
 }
 
-auth_apple_auth_apple_post() {
+auth_apple() {
     local body="${1:-{}}"
     api_request POST "/auth/apple" -d "$body" | pretty
 }
 
-auth_refresh_auth_apple_refresh_post() {
+auth_apple_refresh() {
     local body="${1:-{}}"
     api_request POST "/auth/apple/refresh" -d "$body" | pretty
 }
 
-auth_refresh_auth_refresh_post() {
+auth_refresh() {
     local body="${1:-{}}"
     api_request POST "/auth/refresh" -d "$body" | pretty
 }
 
-auth_sign_out_auth_sign_out_post() {
+auth_sign_out() {
     local body="${1:-{}}"
     api_request POST "/auth/sign-out" -d "$body" | pretty
 }
 
-get_content_url_content_content_type_content_id_get() {
+get_content_url() {
     local content_type="${1:?"content_type is required"}"
     local content_id="${2:?"content_id is required"}"
     local query="${3:-}"
@@ -176,7 +158,7 @@ get_content_url_content_content_type_content_id_get() {
     api_request GET "$path" | pretty
 }
 
-get_events_by_id_events_get() {
+get_events_by_id() {
     local query="${1:-}"
     local path="/events"
     if [[ -n "$query" ]]; then
@@ -185,17 +167,17 @@ get_events_by_id_events_get() {
     api_request GET "$path" | pretty
 }
 
-create_event_events_post() {
+create_event() {
     local body="${1:-{}}"
     api_request POST "/events" -d "$body" | pretty
 }
 
-check_event_statuses_events_sync_post() {
+check_event_statuses() {
     local body="${1:-{}}"
     api_request POST "/events/sync" -d "$body" | pretty
 }
 
-get_event_by_uuid_events_uuid_uuid_get() {
+get_event_by_uuid() {
     local uuid="${1:?"uuid is required"}"
     local query="${2:-}"
     local path="/events/uuid/$uuid"
@@ -205,7 +187,7 @@ get_event_by_uuid_events_uuid_uuid_get() {
     api_request GET "$path" | pretty
 }
 
-post_event_users_events_code_users_get() {
+post_event_users() {
     local code="${1:?"code is required"}"
     local query="${2:-}"
     local path="/events/$code/users"
@@ -215,7 +197,7 @@ post_event_users_events_code_users_get() {
     api_request GET "$path" | pretty
 }
 
-get_event_events_event_id_get() {
+get_event() {
     local event_id="${1:?"event_id is required"}"
     local query="${2:-}"
     local path="/events/$event_id"
@@ -225,24 +207,24 @@ get_event_events_event_id_get() {
     api_request GET "$path" | pretty
 }
 
-update_event_events_event_id_put() {
+update_event() {
     local event_id="${1:?"event_id is required"}"
     local body="${2:-{}}"
     api_request PUT "/events/$event_id" -d "$body" | pretty
 }
 
-like_event_events_event_id_like_post() {
+like_event() {
     local event_id="${1:?"event_id is required"}"
     api_request POST "/events/$event_id/like" | pretty
 }
 
-set_rsvp_status_events_event_id_rsvp_post() {
+set_rsvp_status() {
     local event_id="${1:?"event_id is required"}"
     local body="${2:-{}}"
     api_request POST "/events/$event_id/rsvp" -d "$body" | pretty
 }
 
-get_set_list_events_event_id_setlist_get() {
+get_set_list() {
     local event_id="${1:?"event_id is required"}"
     local query="${2:-}"
     local path="/events/$event_id/setlist"
@@ -252,25 +234,25 @@ get_set_list_events_event_id_setlist_get() {
     api_request GET "$path" | pretty
 }
 
-add_to_set_list_events_event_id_setlist_post() {
+add_to_set_list() {
     local event_id="${1:?"event_id is required"}"
     local body="${2:-{}}"
     api_request POST "/events/$event_id/setlist" -d "$body" | pretty
 }
 
-reorder_set_list_events_event_id_setlist_reorder_put() {
+reorder_set_list() {
     local event_id="${1:?"event_id is required"}"
     local body="${2:-{}}"
     api_request PUT "/events/$event_id/setlist/reorder" -d "$body" | pretty
 }
 
-remove_from_set_list_events_event_id_setlist_note_id_delete() {
+remove_from_set_list() {
     local event_id="${1:?"event_id is required"}"
     local note_id="${2:?"note_id is required"}"
     api_request DELETE "/events/$event_id/setlist/$note_id" | pretty
 }
 
-add_event_songs_events_event_id_songs_get() {
+add_event_songs() {
     local event_id="${1:?"event_id is required"}"
     local query="${2:-}"
     local path="/events/$event_id/songs"
@@ -280,12 +262,12 @@ add_event_songs_events_event_id_songs_get() {
     api_request GET "$path" | pretty
 }
 
-unlike_event_events_event_id_unlike_post() {
+unlike_event() {
     local event_id="${1:?"event_id is required"}"
     api_request POST "/events/$event_id/unlike" | pretty
 }
 
-get_locations_locations_get() {
+get_locations() {
     local query="${1:-}"
     local path="/locations"
     if [[ -n "$query" ]]; then
@@ -294,7 +276,7 @@ get_locations_locations_get() {
     api_request GET "$path" | pretty
 }
 
-get_location_locations_location_id_get() {
+get_location() {
     local location_id="${1:?"location_id is required"}"
     local query="${2:-}"
     local path="/locations/$location_id"
@@ -304,7 +286,7 @@ get_location_locations_location_id_get() {
     api_request GET "$path" | pretty
 }
 
-get_map_events_map_events_get() {
+get_map_events() {
     local query="${1:-}"
     local path="/map/events"
     if [[ -n "$query" ]]; then
@@ -313,7 +295,7 @@ get_map_events_map_events_get() {
     api_request GET "$path" | pretty
 }
 
-get_note_tags_note_tags_get() {
+get_note_tags() {
     local query="${1:-}"
     local path="/note-tags"
     if [[ -n "$query" ]]; then
@@ -322,23 +304,23 @@ get_note_tags_note_tags_get() {
     api_request GET "$path" | pretty
 }
 
-create_note_tag_note_tags_post() {
+create_note_tag() {
     local body="${1:-{}}"
     api_request POST "/note-tags" -d "$body" | pretty
 }
 
-delete_note_tag_note_tags_note_tag_id_delete() {
+delete_note_tag() {
     local note_tag_id="${1:?"note_tag_id is required"}"
     api_request DELETE "/note-tags/$note_tag_id" | pretty
 }
 
-update_note_tag_note_tags_note_tag_id_put() {
+update_note_tag() {
     local note_tag_id="${1:?"note_tag_id is required"}"
     local body="${2:-{}}"
     api_request PUT "/note-tags/$note_tag_id" -d "$body" | pretty
 }
 
-get_notes_by_id_notes_get() {
+get_notes_by_id() {
     local query="${1:-}"
     local path="/notes"
     if [[ -n "$query" ]]; then
@@ -347,12 +329,12 @@ get_notes_by_id_notes_get() {
     api_request GET "$path" | pretty
 }
 
-upload_note_notes_post() {
+upload_note() {
     local body="${1:-{}}"
     api_request POST "/notes" -d "$body" | pretty
 }
 
-get_notes_by_note_tag_notes_by_note_tag_note_tag_id_get() {
+get_notes_by_note_tag() {
     local note_tag_id="${1:?"note_tag_id is required"}"
     local query="${2:-}"
     local path="/notes/by-note-tag/$note_tag_id"
@@ -362,7 +344,7 @@ get_notes_by_note_tag_notes_by_note_tag_note_tag_id_get() {
     api_request GET "$path" | pretty
 }
 
-get_note_collections_by_id_notes_collections_get() {
+get_note_collections_by_id() {
     local query="${1:-}"
     local path="/notes/collections"
     if [[ -n "$query" ]]; then
@@ -371,17 +353,17 @@ get_note_collections_by_id_notes_collections_get() {
     api_request GET "$path" | pretty
 }
 
-get_suggested_tips_notes_suggested_tips_post() {
+get_suggested_tips() {
     local body="${1:-{}}"
     api_request POST "/notes/suggested-tips" -d "$body" | pretty
 }
 
-check_note_statuses_notes_sync_post() {
+check_note_statuses() {
     local body="${1:-{}}"
     api_request POST "/notes/sync" -d "$body" | pretty
 }
 
-get_note_by_uuid_notes_uuid_uuid_get() {
+get_note_by_uuid() {
     local uuid="${1:?"uuid is required"}"
     local query="${2:-}"
     local path="/notes/uuid/$uuid"
@@ -391,7 +373,7 @@ get_note_by_uuid_notes_uuid_uuid_get() {
     api_request GET "$path" | pretty
 }
 
-get_tags_for_note_notes_note_id_note_tags_get() {
+get_tags_for_note() {
     local note_id="${1:?"note_id is required"}"
     local query="${2:-}"
     local path="/notes/$note_id/note-tags"
@@ -401,34 +383,34 @@ get_tags_for_note_notes_note_id_note_tags_get() {
     api_request GET "$path" | pretty
 }
 
-set_tags_for_note_notes_note_id_note_tags_put() {
+set_tags_for_note() {
     local note_id="${1:?"note_id is required"}"
     local body="${2:-{}}"
     api_request PUT "/notes/$note_id/note-tags" -d "$body" | pretty
 }
 
-remove_tag_from_note_notes_note_id_note_tags_note_tag_id_delete() {
+remove_tag_from_note() {
     local note_id="${1:?"note_id is required"}"
     local note_tag_id="${2:?"note_tag_id is required"}"
     api_request DELETE "/notes/$note_id/note-tags/$note_tag_id" | pretty
 }
 
-create_post_posts_post() {
+create_post() {
     local body="${1:-{}}"
     api_request POST "/posts" -d "$body" | pretty
 }
 
-like_comment_posts_comments_comment_id_like_post() {
+like_comment() {
     local comment_id="${1:?"comment_id is required"}"
     api_request POST "/posts/comments/$comment_id/like" | pretty
 }
 
-unlike_comment_posts_comments_comment_id_unlike_post() {
+unlike_comment() {
     local comment_id="${1:?"comment_id is required"}"
     api_request POST "/posts/comments/$comment_id/unlike" | pretty
 }
 
-get_post_comments_posts_post_id_comments_get() {
+get_post_comments() {
     local post_id="${1:?"post_id is required"}"
     local query="${2:-}"
     local path="/posts/$post_id/comments"
@@ -438,68 +420,23 @@ get_post_comments_posts_post_id_comments_get() {
     api_request GET "$path" | pretty
 }
 
-create_comment_posts_post_id_comments_post() {
+create_comment() {
     local post_id="${1:?"post_id is required"}"
     local body="${2:-{}}"
     api_request POST "/posts/$post_id/comments" -d "$body" | pretty
 }
 
-like_post_posts_post_id_like_post() {
+like_post() {
     local post_id="${1:?"post_id is required"}"
     api_request POST "/posts/$post_id/like" | pretty
 }
 
-unlike_post_posts_post_id_unlike_post() {
+unlike_post() {
     local post_id="${1:?"post_id is required"}"
     api_request POST "/posts/$post_id/unlike" | pretty
 }
 
-get_purposeful_debug_log_purposeful_debug_log_get() {
-    local query="${1:-}"
-    local path="/purposeful-debug-log"
-    if [[ -n "$query" ]]; then
-        path="${path}?${query}"
-    fi
-    api_request GET "$path" | pretty
-}
-
-get_purposeful_error_purposeful_error_get() {
-    local query="${1:-}"
-    local path="/purposeful-error"
-    if [[ -n "$query" ]]; then
-        path="${path}?${query}"
-    fi
-    api_request GET "$path" | pretty
-}
-
-get_purposeful_error_log_purposeful_error_log_get() {
-    local query="${1:-}"
-    local path="/purposeful-error-log"
-    if [[ -n "$query" ]]; then
-        path="${path}?${query}"
-    fi
-    api_request GET "$path" | pretty
-}
-
-get_purposeful_info_log_purposeful_info_log_get() {
-    local query="${1:-}"
-    local path="/purposeful-info-log"
-    if [[ -n "$query" ]]; then
-        path="${path}?${query}"
-    fi
-    api_request GET "$path" | pretty
-}
-
-get_purposeful_warning_log_purposeful_warning_log_get() {
-    local query="${1:-}"
-    local path="/purposeful-warning-log"
-    if [[ -n "$query" ]]; then
-        path="${path}?${query}"
-    fi
-    api_request GET "$path" | pretty
-}
-
-get_recordings_by_id_recordings_get() {
+get_recordings_by_id() {
     local query="${1:-}"
     local path="/recordings"
     if [[ -n "$query" ]]; then
@@ -508,12 +445,12 @@ get_recordings_by_id_recordings_get() {
     api_request GET "$path" | pretty
 }
 
-upload_recording_recordings_post() {
+upload_recording() {
     local body="${1:-{}}"
     api_request POST "/recordings" -d "$body" | pretty
 }
 
-get_recording_collections_by_id_recordings_collections_get() {
+get_recording_collections_by_id() {
     local query="${1:-}"
     local path="/recordings/collections"
     if [[ -n "$query" ]]; then
@@ -522,12 +459,12 @@ get_recording_collections_by_id_recordings_collections_get() {
     api_request GET "$path" | pretty
 }
 
-check_recording_statuses_recordings_sync_post() {
+check_recording_statuses() {
     local body="${1:-{}}"
     api_request POST "/recordings/sync" -d "$body" | pretty
 }
 
-get_recording_by_uuid_recordings_uuid_uuid_get() {
+get_recording_by_uuid() {
     local uuid="${1:?"uuid is required"}"
     local query="${2:-}"
     local path="/recordings/uuid/$uuid"
@@ -537,7 +474,7 @@ get_recording_by_uuid_recordings_uuid_uuid_get() {
     api_request GET "$path" | pretty
 }
 
-get_recording_recordings_recording_id_get() {
+get_recording() {
     local recording_id="${1:?"recording_id is required"}"
     local query="${2:-}"
     local path="/recordings/$recording_id"
@@ -547,22 +484,17 @@ get_recording_recordings_recording_id_get() {
     api_request GET "$path" | pretty
 }
 
-like_recording_recordings_recording_id_like_post() {
+like_recording() {
     local recording_id="${1:?"recording_id is required"}"
     api_request POST "/recordings/$recording_id/like" | pretty
 }
 
-unlike_recording_recordings_recording_id_unlike_post() {
+unlike_recording() {
     local recording_id="${1:?"recording_id is required"}"
     api_request POST "/recordings/$recording_id/unlike" | pretty
 }
 
-register_device_register_device_post() {
-    local body="${1:-{}}"
-    api_request POST "/register_device" -d "$body" | pretty
-}
-
-get_search_search_get() {
+get_search() {
     local query="${1:-}"
     local path="/search"
     if [[ -n "$query" ]]; then
@@ -571,7 +503,7 @@ get_search_search_get() {
     api_request GET "$path" | pretty
 }
 
-get_songs_by_id_songs_get() {
+get_songs_by_id() {
     local query="${1:-}"
     local path="/songs"
     if [[ -n "$query" ]]; then
@@ -580,12 +512,12 @@ get_songs_by_id_songs_get() {
     api_request GET "$path" | pretty
 }
 
-get_songs_by_spotify_id_songs_spotify_get() {
+get_songs_by_spotify_id() {
     local body="${1:-{}}"
     api_request GET "/songs/spotify" -d "$body" | pretty
 }
 
-get_users_users_get() {
+get_users() {
     local query="${1:-}"
     local path="/users"
     if [[ -n "$query" ]]; then
@@ -594,11 +526,11 @@ get_users_users_get() {
     api_request GET "$path" | pretty
 }
 
-create_test_user_users_post() {
+create_test_user() {
     api_request POST "/users" | pretty
 }
 
-list_api_keys_users_me_api_keys_get() {
+list_api_keys() {
     local query="${1:-}"
     local path="/users/me/api-keys"
     if [[ -n "$query" ]]; then
@@ -607,17 +539,17 @@ list_api_keys_users_me_api_keys_get() {
     api_request GET "$path" | pretty
 }
 
-create_api_key_users_me_api_keys_post() {
+create_api_key() {
     local body="${1:-{}}"
     api_request POST "/users/me/api-keys" -d "$body" | pretty
 }
 
-delete_api_key_users_me_api_keys_api_key_id_delete() {
+delete_api_key() {
     local api_key_id="${1:?"api_key_id is required"}"
     api_request DELETE "/users/me/api-keys/$api_key_id" | pretty
 }
 
-get_notifications_users_me_notifications_get() {
+get_notifications() {
     local query="${1:-}"
     local path="/users/me/notifications"
     if [[ -n "$query" ]]; then
@@ -626,7 +558,7 @@ get_notifications_users_me_notifications_get() {
     api_request GET "$path" | pretty
 }
 
-get_preferences_users_me_preferences_get() {
+get_preferences() {
     local query="${1:-}"
     local path="/users/me/preferences"
     if [[ -n "$query" ]]; then
@@ -635,21 +567,21 @@ get_preferences_users_me_preferences_get() {
     api_request GET "$path" | pretty
 }
 
-update_preferences_users_me_preferences_put() {
+update_preferences() {
     local body="${1:-{}}"
     api_request PUT "/users/me/preferences" -d "$body" | pretty
 }
 
-clear_primary_artist_users_me_primary_artist_delete() {
+clear_primary_artist() {
     api_request DELETE "/users/me/primary-artist" | pretty
 }
 
-set_primary_artist_users_me_primary_artist_put() {
+set_primary_artist() {
     local body="${1:-{}}"
     api_request PUT "/users/me/primary-artist" -d "$body" | pretty
 }
 
-get_user_note_collections_users_created_by_id_notes_collections_get() {
+get_user_note_collections() {
     local created_by_id="${1:?"created_by_id is required"}"
     local query="${2:-}"
     local path="/users/$created_by_id/notes/collections"
@@ -659,7 +591,7 @@ get_user_note_collections_users_created_by_id_notes_collections_get() {
     api_request GET "$path" | pretty
 }
 
-get_user_recording_collections_users_created_by_id_recordings_collections_get() {
+get_user_recording_collections() {
     local created_by_id="${1:?"created_by_id is required"}"
     local query="${2:-}"
     local path="/users/$created_by_id/recordings/collections"
@@ -669,18 +601,18 @@ get_user_recording_collections_users_created_by_id_recordings_collections_get() 
     api_request GET "$path" | pretty
 }
 
-add_user_link_users_logged_in_user_id_user_links_post() {
+add_user_link() {
     local logged_in_user_id="${1:?"logged_in_user_id is required"}"
     api_request POST "/users/$logged_in_user_id/user_links" | pretty
 }
 
-delete_user_link_users_logged_in_user_id_user_links_link_to_delete_id_delete() {
+delete_user_link() {
     local logged_in_user_id="${1:?"logged_in_user_id is required"}"
     local link_to_delete_id="${2:?"link_to_delete_id is required"}"
     api_request DELETE "/users/$logged_in_user_id/user_links/$link_to_delete_id" | pretty
 }
 
-get_user_users_user_id_get() {
+get_user() {
     local user_id="${1:?"user_id is required"}"
     local query="${2:-}"
     local path="/users/$user_id"
@@ -690,7 +622,7 @@ get_user_users_user_id_get() {
     api_request GET "$path" | pretty
 }
 
-get_user_events_users_user_id_events_get() {
+get_user_events() {
     local user_id="${1:?"user_id is required"}"
     local query="${2:-}"
     local path="/users/$user_id/events"
@@ -700,7 +632,7 @@ get_user_events_users_user_id_events_get() {
     api_request GET "$path" | pretty
 }
 
-get_user_notes_users_user_id_notes_get() {
+get_user_notes() {
     local user_id="${1:?"user_id is required"}"
     local query="${2:-}"
     local path="/users/$user_id/notes"
@@ -710,7 +642,7 @@ get_user_notes_users_user_id_notes_get() {
     api_request GET "$path" | pretty
 }
 
-get_user_recordings_users_user_id_recordings_get() {
+get_user_recordings() {
     local user_id="${1:?"user_id is required"}"
     local query="${2:-}"
     local path="/users/$user_id/recordings"
@@ -720,23 +652,23 @@ get_user_recordings_users_user_id_recordings_get() {
     api_request GET "$path" | pretty
 }
 
-update_user_users_user_to_change_id_put() {
+update_user() {
     local user_to_change_id="${1:?"user_to_change_id is required"}"
     local body="${2:-{}}"
     api_request PUT "/users/$user_to_change_id" -d "$body" | pretty
 }
 
-get_profile_image_upload_url_users_user_to_change_id_image_upload_url_post() {
+get_profile_image_upload_url() {
     local user_to_change_id="${1:?"user_to_change_id is required"}"
     api_request POST "/users/$user_to_change_id/image/upload-url" | pretty
 }
 
-create_venue_venues_post() {
+create_venue() {
     local body="${1:-{}}"
     api_request POST "/venues" -d "$body" | pretty
 }
 
-get_venue_venues_venue_id_get() {
+get_venue() {
     local venue_id="${1:?"venue_id is required"}"
     local query="${2:-}"
     local path="/venues/$venue_id"
@@ -746,7 +678,7 @@ get_venue_venues_venue_id_get() {
     api_request GET "$path" | pretty
 }
 
-get_venue_events_venues_venue_id_events_get() {
+get_venue_events() {
     local venue_id="${1:?"venue_id is required"}"
     local query="${2:-}"
     local path="/venues/$venue_id/events"
@@ -763,101 +695,93 @@ stardust - Stardust Jams CLI
 Usage: stardust <command> [args...]
 
 Commands:
-  get-status-get                                                                                 Get Status
-  get-status-status-get                                                                          Get Status
-  create-artist-artists-post [json-body]                                                         Create Artist
-  get-artist-artists-artist-id-get <artist_id>                                                   Get Artist
-  get-artist-events-artists-artist-id-events-get <artist_id>                                     Get Artist Events
-  request-membership-artists-artist-id-members-post <artist_id>                                  Request Membership
-  remove-own-membership-artists-artist-id-members-me-delete <artist_id>                          Remove Own Membership
-  approve-membership-artists-artist-id-members-member-user-id-approve-post <artist_id> <member_user_id>  Approve Membership
-  reject-membership-artists-artist-id-members-member-user-id-reject-post <artist_id> <member_user_id>  Reject Membership
-  get-artist-notes-artists-artist-id-notes-get <artist_id>                                       Get Artist Notes
-  get-artist-recordings-artists-artist-id-recordings-get <artist_id>                             Get Artist Recordings
-  auth-apple-auth-apple-post [json-body]                                                         Auth Apple
-  auth-refresh-auth-apple-refresh-post [json-body]                                               Auth Refresh
-  auth-refresh-auth-refresh-post [json-body]                                                     Auth Refresh
-  auth-sign-out-auth-sign-out-post [json-body]                                                   Auth Sign Out
-  get-content-url-content-content-type-content-id-get <content_type> <content_id>                Get Content Url
-  get-events-by-id-events-get                                                                    Get Events By Id
-  create-event-events-post [json-body]                                                           Create Event
-  check-event-statuses-events-sync-post [json-body]                                              Check Event Statuses
-  get-event-by-uuid-events-uuid-uuid-get <uuid>                                                  Get Event By Uuid
-  post-event-users-events-code-users-get <code>                                                  Post Event Users
-  get-event-events-event-id-get <event_id>                                                       Get Event
-  update-event-events-event-id-put <event_id> [json-body]                                        Update Event
-  like-event-events-event-id-like-post <event_id>                                                Like Event
-  set-rsvp-status-events-event-id-rsvp-post <event_id> [json-body]                               Set Rsvp Status
-  get-set-list-events-event-id-setlist-get <event_id>                                            Get Set List
-  add-to-set-list-events-event-id-setlist-post <event_id> [json-body]                            Add To Set List
-  reorder-set-list-events-event-id-setlist-reorder-put <event_id> [json-body]                    Reorder Set List
-  remove-from-set-list-events-event-id-setlist-note-id-delete <event_id> <note_id>               Remove From Set List
-  add-event-songs-events-event-id-songs-get <event_id>                                           Add Event Songs
-  unlike-event-events-event-id-unlike-post <event_id>                                            Unlike Event
-  get-locations-locations-get                                                                    Get Locations
-  get-location-locations-location-id-get <location_id>                                           Get Location
-  get-map-events-map-events-get                                                                  Get Map Events
-  get-note-tags-note-tags-get                                                                    Get Note Tags
-  create-note-tag-note-tags-post [json-body]                                                     Create Note Tag
-  delete-note-tag-note-tags-note-tag-id-delete <note_tag_id>                                     Delete Note Tag
-  update-note-tag-note-tags-note-tag-id-put <note_tag_id> [json-body]                            Update Note Tag
-  get-notes-by-id-notes-get                                                                      Get Notes By Id
-  upload-note-notes-post [json-body]                                                             Upload Note
-  get-notes-by-note-tag-notes-by-note-tag-note-tag-id-get <note_tag_id>                          Get Notes By Note Tag
-  get-note-collections-by-id-notes-collections-get                                               Get Note Collections By Id
-  get-suggested-tips-notes-suggested-tips-post [json-body]                                       Get Suggested Tips
-  check-note-statuses-notes-sync-post [json-body]                                                Check Note Statuses
-  get-note-by-uuid-notes-uuid-uuid-get <uuid>                                                    Get Note By Uuid
-  get-tags-for-note-notes-note-id-note-tags-get <note_id>                                        Get Tags For Note
-  set-tags-for-note-notes-note-id-note-tags-put <note_id> [json-body]                            Set Tags For Note
-  remove-tag-from-note-notes-note-id-note-tags-note-tag-id-delete <note_id> <note_tag_id>        Remove Tag From Note
-  create-post-posts-post [json-body]                                                             Create Post
-  like-comment-posts-comments-comment-id-like-post <comment_id>                                  Like Comment
-  unlike-comment-posts-comments-comment-id-unlike-post <comment_id>                              Unlike Comment
-  get-post-comments-posts-post-id-comments-get <post_id>                                         Get Post Comments
-  create-comment-posts-post-id-comments-post <post_id> [json-body]                               Create Comment
-  like-post-posts-post-id-like-post <post_id>                                                    Like Post
-  unlike-post-posts-post-id-unlike-post <post_id>                                                Unlike Post
-  get-purposeful-debug-log-purposeful-debug-log-get                                              Get Purposeful Debug Log
-  get-purposeful-error-purposeful-error-get                                                      Get Purposeful Error
-  get-purposeful-error-log-purposeful-error-log-get                                              Get Purposeful Error Log
-  get-purposeful-info-log-purposeful-info-log-get                                                Get Purposeful Info Log
-  get-purposeful-warning-log-purposeful-warning-log-get                                          Get Purposeful Warning Log
-  get-recordings-by-id-recordings-get                                                            Get Recordings By Id
-  upload-recording-recordings-post [json-body]                                                   Upload Recording
-  get-recording-collections-by-id-recordings-collections-get                                     Get Recording Collections By Id
-  check-recording-statuses-recordings-sync-post [json-body]                                      Check Recording Statuses
-  get-recording-by-uuid-recordings-uuid-uuid-get <uuid>                                          Get Recording By Uuid
-  get-recording-recordings-recording-id-get <recording_id>                                       Get Recording
-  like-recording-recordings-recording-id-like-post <recording_id>                                Like Recording
-  unlike-recording-recordings-recording-id-unlike-post <recording_id>                            Unlike Recording
-  register-device-register-device-post [json-body]                                               Register Device
-  get-search-search-get                                                                          Get Search
-  get-songs-by-id-songs-get                                                                      Get Songs By Id
-  get-songs-by-spotify-id-songs-spotify-get [json-body]                                          Get Songs By Spotify Id
-  get-users-users-get                                                                            Get Users
-  create-test-user-users-post                                                                    Create Test User
-  list-api-keys-users-me-api-keys-get                                                            List Api Keys
-  create-api-key-users-me-api-keys-post [json-body]                                              Create Api Key
-  delete-api-key-users-me-api-keys-api-key-id-delete <api_key_id>                                Delete Api Key
-  get-notifications-users-me-notifications-get                                                   Get Notifications
-  get-preferences-users-me-preferences-get                                                       Get Preferences
-  update-preferences-users-me-preferences-put [json-body]                                        Update Preferences
-  clear-primary-artist-users-me-primary-artist-delete                                            Clear Primary Artist
-  set-primary-artist-users-me-primary-artist-put [json-body]                                     Set Primary Artist
-  get-user-note-collections-users-created-by-id-notes-collections-get <created_by_id>            Get User Note Collections
-  get-user-recording-collections-users-created-by-id-recordings-collections-get <created_by_id>  Get User Recording Collections
-  add-user-link-users-logged-in-user-id-user-links-post <logged_in_user_id>                      Add User Link
-  delete-user-link-users-logged-in-user-id-user-links-link-to-delete-id-delete <logged_in_user_id> <link_to_delete_id>  Delete User Link
-  get-user-users-user-id-get <user_id>                                                           Get User
-  get-user-events-users-user-id-events-get <user_id>                                             Get User Events
-  get-user-notes-users-user-id-notes-get <user_id>                                               Get User Notes
-  get-user-recordings-users-user-id-recordings-get <user_id>                                     Get User Recordings
-  update-user-users-user-to-change-id-put <user_to_change_id> [json-body]                        Update User
-  get-profile-image-upload-url-users-user-to-change-id-image-upload-url-post <user_to_change_id>  Get Profile Image Upload Url
-  create-venue-venues-post [json-body]                                                           Create Venue
-  get-venue-venues-venue-id-get <venue_id>                                                       Get Venue
-  get-venue-events-venues-venue-id-events-get <venue_id>                                         Get Venue Events
+  create-artist [json-body]                        Create Artist
+  get-artist <artist_id>                           Get Artist
+  get-artist-events <artist_id>                    Get Artist Events
+  request-membership <artist_id>                   Request Membership
+  remove-own-membership <artist_id>                Remove Own Membership
+  approve-membership <artist_id> <member_user_id>  Approve Membership
+  reject-membership <artist_id> <member_user_id>   Reject Membership
+  get-artist-notes <artist_id>                     Get Artist Notes
+  get-artist-recordings <artist_id>                Get Artist Recordings
+  auth-apple [json-body]                           Auth Apple
+  auth-apple-refresh [json-body]                   Auth Refresh
+  auth-refresh [json-body]                         Auth Refresh
+  auth-sign-out [json-body]                        Auth Sign Out
+  get-content-url <content_type> <content_id>      Get Content Url
+  get-events-by-id                                 Get Events By Id
+  create-event [json-body]                         Create Event
+  check-event-statuses [json-body]                 Check Event Statuses
+  get-event-by-uuid <uuid>                         Get Event By Uuid
+  post-event-users <code>                          Post Event Users
+  get-event <event_id>                             Get Event
+  update-event <event_id> [json-body]              Update Event
+  like-event <event_id>                            Like Event
+  set-rsvp-status <event_id> [json-body]           Set Rsvp Status
+  get-set-list <event_id>                          Get Set List
+  add-to-set-list <event_id> [json-body]           Add To Set List
+  reorder-set-list <event_id> [json-body]          Reorder Set List
+  remove-from-set-list <event_id> <note_id>        Remove From Set List
+  add-event-songs <event_id>                       Add Event Songs
+  unlike-event <event_id>                          Unlike Event
+  get-locations                                    Get Locations
+  get-location <location_id>                       Get Location
+  get-map-events                                   Get Map Events
+  get-note-tags                                    Get Note Tags
+  create-note-tag [json-body]                      Create Note Tag
+  delete-note-tag <note_tag_id>                    Delete Note Tag
+  update-note-tag <note_tag_id> [json-body]        Update Note Tag
+  get-notes-by-id                                  Get Notes By Id
+  upload-note [json-body]                          Upload Note
+  get-notes-by-note-tag <note_tag_id>              Get Notes By Note Tag
+  get-note-collections-by-id                       Get Note Collections By Id
+  get-suggested-tips [json-body]                   Get Suggested Tips
+  check-note-statuses [json-body]                  Check Note Statuses
+  get-note-by-uuid <uuid>                          Get Note By Uuid
+  get-tags-for-note <note_id>                      Get Tags For Note
+  set-tags-for-note <note_id> [json-body]          Set Tags For Note
+  remove-tag-from-note <note_id> <note_tag_id>     Remove Tag From Note
+  create-post [json-body]                          Create Post
+  like-comment <comment_id>                        Like Comment
+  unlike-comment <comment_id>                      Unlike Comment
+  get-post-comments <post_id>                      Get Post Comments
+  create-comment <post_id> [json-body]             Create Comment
+  like-post <post_id>                              Like Post
+  unlike-post <post_id>                            Unlike Post
+  get-recordings-by-id                             Get Recordings By Id
+  upload-recording [json-body]                     Upload Recording
+  get-recording-collections-by-id                  Get Recording Collections By Id
+  check-recording-statuses [json-body]             Check Recording Statuses
+  get-recording-by-uuid <uuid>                     Get Recording By Uuid
+  get-recording <recording_id>                     Get Recording
+  like-recording <recording_id>                    Like Recording
+  unlike-recording <recording_id>                  Unlike Recording
+  get-search                                       Get Search
+  get-songs-by-id                                  Get Songs By Id
+  get-songs-by-spotify-id [json-body]              Get Songs By Spotify Id
+  get-users                                        Get Users
+  create-test-user                                 Create Test User
+  list-api-keys                                    List Api Keys
+  create-api-key [json-body]                       Create Api Key
+  delete-api-key <api_key_id>                      Delete Api Key
+  get-notifications                                Get Notifications
+  get-preferences                                  Get Preferences
+  update-preferences [json-body]                   Update Preferences
+  clear-primary-artist                             Clear Primary Artist
+  set-primary-artist [json-body]                   Set Primary Artist
+  get-user-note-collections <created_by_id>        Get User Note Collections
+  get-user-recording-collections <created_by_id>   Get User Recording Collections
+  add-user-link <logged_in_user_id>                Add User Link
+  delete-user-link <logged_in_user_id> <link_to_delete_id>  Delete User Link
+  get-user <user_id>                               Get User
+  get-user-events <user_id>                        Get User Events
+  get-user-notes <user_id>                         Get User Notes
+  get-user-recordings <user_id>                    Get User Recordings
+  update-user <user_to_change_id> [json-body]      Update User
+  get-profile-image-upload-url <user_to_change_id>  Get Profile Image Upload Url
+  create-venue [json-body]                         Create Venue
+  get-venue <venue_id>                             Get Venue
+  get-venue-events <venue_id>                      Get Venue Events
 
 Environment:
   STARDUST_API_KEY    API key for authentication (required)
@@ -869,101 +793,93 @@ command="${1:-help}"
 shift || true
 
 case "$command" in
-    get-status-get) get_status_get "$@" ;;
-    get-status-status-get) get_status_status_get "$@" ;;
-    create-artist-artists-post) create_artist_artists_post "$@" ;;
-    get-artist-artists-artist-id-get) get_artist_artists_artist_id_get "$@" ;;
-    get-artist-events-artists-artist-id-events-get) get_artist_events_artists_artist_id_events_get "$@" ;;
-    request-membership-artists-artist-id-members-post) request_membership_artists_artist_id_members_post "$@" ;;
-    remove-own-membership-artists-artist-id-members-me-delete) remove_own_membership_artists_artist_id_members_me_delete "$@" ;;
-    approve-membership-artists-artist-id-members-member-user-id-approve-post) approve_membership_artists_artist_id_members_member_user_id_approve_post "$@" ;;
-    reject-membership-artists-artist-id-members-member-user-id-reject-post) reject_membership_artists_artist_id_members_member_user_id_reject_post "$@" ;;
-    get-artist-notes-artists-artist-id-notes-get) get_artist_notes_artists_artist_id_notes_get "$@" ;;
-    get-artist-recordings-artists-artist-id-recordings-get) get_artist_recordings_artists_artist_id_recordings_get "$@" ;;
-    auth-apple-auth-apple-post) auth_apple_auth_apple_post "$@" ;;
-    auth-refresh-auth-apple-refresh-post) auth_refresh_auth_apple_refresh_post "$@" ;;
-    auth-refresh-auth-refresh-post) auth_refresh_auth_refresh_post "$@" ;;
-    auth-sign-out-auth-sign-out-post) auth_sign_out_auth_sign_out_post "$@" ;;
-    get-content-url-content-content-type-content-id-get) get_content_url_content_content_type_content_id_get "$@" ;;
-    get-events-by-id-events-get) get_events_by_id_events_get "$@" ;;
-    create-event-events-post) create_event_events_post "$@" ;;
-    check-event-statuses-events-sync-post) check_event_statuses_events_sync_post "$@" ;;
-    get-event-by-uuid-events-uuid-uuid-get) get_event_by_uuid_events_uuid_uuid_get "$@" ;;
-    post-event-users-events-code-users-get) post_event_users_events_code_users_get "$@" ;;
-    get-event-events-event-id-get) get_event_events_event_id_get "$@" ;;
-    update-event-events-event-id-put) update_event_events_event_id_put "$@" ;;
-    like-event-events-event-id-like-post) like_event_events_event_id_like_post "$@" ;;
-    set-rsvp-status-events-event-id-rsvp-post) set_rsvp_status_events_event_id_rsvp_post "$@" ;;
-    get-set-list-events-event-id-setlist-get) get_set_list_events_event_id_setlist_get "$@" ;;
-    add-to-set-list-events-event-id-setlist-post) add_to_set_list_events_event_id_setlist_post "$@" ;;
-    reorder-set-list-events-event-id-setlist-reorder-put) reorder_set_list_events_event_id_setlist_reorder_put "$@" ;;
-    remove-from-set-list-events-event-id-setlist-note-id-delete) remove_from_set_list_events_event_id_setlist_note_id_delete "$@" ;;
-    add-event-songs-events-event-id-songs-get) add_event_songs_events_event_id_songs_get "$@" ;;
-    unlike-event-events-event-id-unlike-post) unlike_event_events_event_id_unlike_post "$@" ;;
-    get-locations-locations-get) get_locations_locations_get "$@" ;;
-    get-location-locations-location-id-get) get_location_locations_location_id_get "$@" ;;
-    get-map-events-map-events-get) get_map_events_map_events_get "$@" ;;
-    get-note-tags-note-tags-get) get_note_tags_note_tags_get "$@" ;;
-    create-note-tag-note-tags-post) create_note_tag_note_tags_post "$@" ;;
-    delete-note-tag-note-tags-note-tag-id-delete) delete_note_tag_note_tags_note_tag_id_delete "$@" ;;
-    update-note-tag-note-tags-note-tag-id-put) update_note_tag_note_tags_note_tag_id_put "$@" ;;
-    get-notes-by-id-notes-get) get_notes_by_id_notes_get "$@" ;;
-    upload-note-notes-post) upload_note_notes_post "$@" ;;
-    get-notes-by-note-tag-notes-by-note-tag-note-tag-id-get) get_notes_by_note_tag_notes_by_note_tag_note_tag_id_get "$@" ;;
-    get-note-collections-by-id-notes-collections-get) get_note_collections_by_id_notes_collections_get "$@" ;;
-    get-suggested-tips-notes-suggested-tips-post) get_suggested_tips_notes_suggested_tips_post "$@" ;;
-    check-note-statuses-notes-sync-post) check_note_statuses_notes_sync_post "$@" ;;
-    get-note-by-uuid-notes-uuid-uuid-get) get_note_by_uuid_notes_uuid_uuid_get "$@" ;;
-    get-tags-for-note-notes-note-id-note-tags-get) get_tags_for_note_notes_note_id_note_tags_get "$@" ;;
-    set-tags-for-note-notes-note-id-note-tags-put) set_tags_for_note_notes_note_id_note_tags_put "$@" ;;
-    remove-tag-from-note-notes-note-id-note-tags-note-tag-id-delete) remove_tag_from_note_notes_note_id_note_tags_note_tag_id_delete "$@" ;;
-    create-post-posts-post) create_post_posts_post "$@" ;;
-    like-comment-posts-comments-comment-id-like-post) like_comment_posts_comments_comment_id_like_post "$@" ;;
-    unlike-comment-posts-comments-comment-id-unlike-post) unlike_comment_posts_comments_comment_id_unlike_post "$@" ;;
-    get-post-comments-posts-post-id-comments-get) get_post_comments_posts_post_id_comments_get "$@" ;;
-    create-comment-posts-post-id-comments-post) create_comment_posts_post_id_comments_post "$@" ;;
-    like-post-posts-post-id-like-post) like_post_posts_post_id_like_post "$@" ;;
-    unlike-post-posts-post-id-unlike-post) unlike_post_posts_post_id_unlike_post "$@" ;;
-    get-purposeful-debug-log-purposeful-debug-log-get) get_purposeful_debug_log_purposeful_debug_log_get "$@" ;;
-    get-purposeful-error-purposeful-error-get) get_purposeful_error_purposeful_error_get "$@" ;;
-    get-purposeful-error-log-purposeful-error-log-get) get_purposeful_error_log_purposeful_error_log_get "$@" ;;
-    get-purposeful-info-log-purposeful-info-log-get) get_purposeful_info_log_purposeful_info_log_get "$@" ;;
-    get-purposeful-warning-log-purposeful-warning-log-get) get_purposeful_warning_log_purposeful_warning_log_get "$@" ;;
-    get-recordings-by-id-recordings-get) get_recordings_by_id_recordings_get "$@" ;;
-    upload-recording-recordings-post) upload_recording_recordings_post "$@" ;;
-    get-recording-collections-by-id-recordings-collections-get) get_recording_collections_by_id_recordings_collections_get "$@" ;;
-    check-recording-statuses-recordings-sync-post) check_recording_statuses_recordings_sync_post "$@" ;;
-    get-recording-by-uuid-recordings-uuid-uuid-get) get_recording_by_uuid_recordings_uuid_uuid_get "$@" ;;
-    get-recording-recordings-recording-id-get) get_recording_recordings_recording_id_get "$@" ;;
-    like-recording-recordings-recording-id-like-post) like_recording_recordings_recording_id_like_post "$@" ;;
-    unlike-recording-recordings-recording-id-unlike-post) unlike_recording_recordings_recording_id_unlike_post "$@" ;;
-    register-device-register-device-post) register_device_register_device_post "$@" ;;
-    get-search-search-get) get_search_search_get "$@" ;;
-    get-songs-by-id-songs-get) get_songs_by_id_songs_get "$@" ;;
-    get-songs-by-spotify-id-songs-spotify-get) get_songs_by_spotify_id_songs_spotify_get "$@" ;;
-    get-users-users-get) get_users_users_get "$@" ;;
-    create-test-user-users-post) create_test_user_users_post "$@" ;;
-    list-api-keys-users-me-api-keys-get) list_api_keys_users_me_api_keys_get "$@" ;;
-    create-api-key-users-me-api-keys-post) create_api_key_users_me_api_keys_post "$@" ;;
-    delete-api-key-users-me-api-keys-api-key-id-delete) delete_api_key_users_me_api_keys_api_key_id_delete "$@" ;;
-    get-notifications-users-me-notifications-get) get_notifications_users_me_notifications_get "$@" ;;
-    get-preferences-users-me-preferences-get) get_preferences_users_me_preferences_get "$@" ;;
-    update-preferences-users-me-preferences-put) update_preferences_users_me_preferences_put "$@" ;;
-    clear-primary-artist-users-me-primary-artist-delete) clear_primary_artist_users_me_primary_artist_delete "$@" ;;
-    set-primary-artist-users-me-primary-artist-put) set_primary_artist_users_me_primary_artist_put "$@" ;;
-    get-user-note-collections-users-created-by-id-notes-collections-get) get_user_note_collections_users_created_by_id_notes_collections_get "$@" ;;
-    get-user-recording-collections-users-created-by-id-recordings-collections-get) get_user_recording_collections_users_created_by_id_recordings_collections_get "$@" ;;
-    add-user-link-users-logged-in-user-id-user-links-post) add_user_link_users_logged_in_user_id_user_links_post "$@" ;;
-    delete-user-link-users-logged-in-user-id-user-links-link-to-delete-id-delete) delete_user_link_users_logged_in_user_id_user_links_link_to_delete_id_delete "$@" ;;
-    get-user-users-user-id-get) get_user_users_user_id_get "$@" ;;
-    get-user-events-users-user-id-events-get) get_user_events_users_user_id_events_get "$@" ;;
-    get-user-notes-users-user-id-notes-get) get_user_notes_users_user_id_notes_get "$@" ;;
-    get-user-recordings-users-user-id-recordings-get) get_user_recordings_users_user_id_recordings_get "$@" ;;
-    update-user-users-user-to-change-id-put) update_user_users_user_to_change_id_put "$@" ;;
-    get-profile-image-upload-url-users-user-to-change-id-image-upload-url-post) get_profile_image_upload_url_users_user_to_change_id_image_upload_url_post "$@" ;;
-    create-venue-venues-post) create_venue_venues_post "$@" ;;
-    get-venue-venues-venue-id-get) get_venue_venues_venue_id_get "$@" ;;
-    get-venue-events-venues-venue-id-events-get) get_venue_events_venues_venue_id_events_get "$@" ;;
+    create-artist) create_artist "$@" ;;
+    get-artist) get_artist "$@" ;;
+    get-artist-events) get_artist_events "$@" ;;
+    request-membership) request_membership "$@" ;;
+    remove-own-membership) remove_own_membership "$@" ;;
+    approve-membership) approve_membership "$@" ;;
+    reject-membership) reject_membership "$@" ;;
+    get-artist-notes) get_artist_notes "$@" ;;
+    get-artist-recordings) get_artist_recordings "$@" ;;
+    auth-apple) auth_apple "$@" ;;
+    auth-apple-refresh) auth_apple_refresh "$@" ;;
+    auth-refresh) auth_refresh "$@" ;;
+    auth-sign-out) auth_sign_out "$@" ;;
+    get-content-url) get_content_url "$@" ;;
+    get-events-by-id) get_events_by_id "$@" ;;
+    create-event) create_event "$@" ;;
+    check-event-statuses) check_event_statuses "$@" ;;
+    get-event-by-uuid) get_event_by_uuid "$@" ;;
+    post-event-users) post_event_users "$@" ;;
+    get-event) get_event "$@" ;;
+    update-event) update_event "$@" ;;
+    like-event) like_event "$@" ;;
+    set-rsvp-status) set_rsvp_status "$@" ;;
+    get-set-list) get_set_list "$@" ;;
+    add-to-set-list) add_to_set_list "$@" ;;
+    reorder-set-list) reorder_set_list "$@" ;;
+    remove-from-set-list) remove_from_set_list "$@" ;;
+    add-event-songs) add_event_songs "$@" ;;
+    unlike-event) unlike_event "$@" ;;
+    get-locations) get_locations "$@" ;;
+    get-location) get_location "$@" ;;
+    get-map-events) get_map_events "$@" ;;
+    get-note-tags) get_note_tags "$@" ;;
+    create-note-tag) create_note_tag "$@" ;;
+    delete-note-tag) delete_note_tag "$@" ;;
+    update-note-tag) update_note_tag "$@" ;;
+    get-notes-by-id) get_notes_by_id "$@" ;;
+    upload-note) upload_note "$@" ;;
+    get-notes-by-note-tag) get_notes_by_note_tag "$@" ;;
+    get-note-collections-by-id) get_note_collections_by_id "$@" ;;
+    get-suggested-tips) get_suggested_tips "$@" ;;
+    check-note-statuses) check_note_statuses "$@" ;;
+    get-note-by-uuid) get_note_by_uuid "$@" ;;
+    get-tags-for-note) get_tags_for_note "$@" ;;
+    set-tags-for-note) set_tags_for_note "$@" ;;
+    remove-tag-from-note) remove_tag_from_note "$@" ;;
+    create-post) create_post "$@" ;;
+    like-comment) like_comment "$@" ;;
+    unlike-comment) unlike_comment "$@" ;;
+    get-post-comments) get_post_comments "$@" ;;
+    create-comment) create_comment "$@" ;;
+    like-post) like_post "$@" ;;
+    unlike-post) unlike_post "$@" ;;
+    get-recordings-by-id) get_recordings_by_id "$@" ;;
+    upload-recording) upload_recording "$@" ;;
+    get-recording-collections-by-id) get_recording_collections_by_id "$@" ;;
+    check-recording-statuses) check_recording_statuses "$@" ;;
+    get-recording-by-uuid) get_recording_by_uuid "$@" ;;
+    get-recording) get_recording "$@" ;;
+    like-recording) like_recording "$@" ;;
+    unlike-recording) unlike_recording "$@" ;;
+    get-search) get_search "$@" ;;
+    get-songs-by-id) get_songs_by_id "$@" ;;
+    get-songs-by-spotify-id) get_songs_by_spotify_id "$@" ;;
+    get-users) get_users "$@" ;;
+    create-test-user) create_test_user "$@" ;;
+    list-api-keys) list_api_keys "$@" ;;
+    create-api-key) create_api_key "$@" ;;
+    delete-api-key) delete_api_key "$@" ;;
+    get-notifications) get_notifications "$@" ;;
+    get-preferences) get_preferences "$@" ;;
+    update-preferences) update_preferences "$@" ;;
+    clear-primary-artist) clear_primary_artist "$@" ;;
+    set-primary-artist) set_primary_artist "$@" ;;
+    get-user-note-collections) get_user_note_collections "$@" ;;
+    get-user-recording-collections) get_user_recording_collections "$@" ;;
+    add-user-link) add_user_link "$@" ;;
+    delete-user-link) delete_user_link "$@" ;;
+    get-user) get_user "$@" ;;
+    get-user-events) get_user_events "$@" ;;
+    get-user-notes) get_user_notes "$@" ;;
+    get-user-recordings) get_user_recordings "$@" ;;
+    update-user) update_user "$@" ;;
+    get-profile-image-upload-url) get_profile_image_upload_url "$@" ;;
+    create-venue) create_venue "$@" ;;
+    get-venue) get_venue "$@" ;;
+    get-venue-events) get_venue_events "$@" ;;
     help|--help|-h) show_help ;;
     *)
         echo "Unknown command: $command" >&2
